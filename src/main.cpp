@@ -145,10 +145,10 @@ int main() {
 							// Define the state vector.
 							Eigen::VectorXd state(6);
 							state << x_delay, y_delay, psi_delay, v_delay, cte_delay, epsi_delay;
-							cout << "***********" <<endl;
-							cout << x_delay << " " <<  y_delay << " " << psi_delay << " " << v_delay
-									<< " " << cte_delay << " " << epsi_delay << coeffs << endl;
-							cout << "***********"<<endl;
+							//cout << "***********" <<endl;
+							//cout << x_delay << " " <<  y_delay << " " << psi_delay << " " << v_delay
+							//		<< " " << cte_delay << " " << epsi_delay << coeffs << endl;
+							//cout << "***********"<<endl;
 
 							// Find the MPC solution.
 							auto vars = mpc.Solve(state, coeffs);

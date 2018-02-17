@@ -78,7 +78,7 @@ public:
 							2);
 			fg[0] += cost_diff_a_factor * CppAD::pow(vars[a_start + i + 1] - vars[a_start + i], 2);
 		}
-		cout << "askdjdksfhkaljfhalkjfk::  " << fg[0] << endl;
+		//cout << "askdjdksfhkaljfhalkjfk::  " << fg[0] << endl;
 
 		fg[1 + x_start] = vars[x_start];
 		fg[1 + y_start] = vars[y_start];
@@ -249,7 +249,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   // Cost
   auto cost = solution.obj_value;
-  std::cout << "Cost: " << cost << ", ok: " << ok << std::endl;
+  //std::cout << "Cost: " << cost << ", ok: " << ok << std::endl;
 
   // TODO: Return the first actuator values. The variables can be accessed with
   // `solution.x[i]`.
@@ -265,10 +265,10 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 	  sol.push_back(solution.x[y_start + i]);
 
   }
-  for(auto ele: sol){
-	  cout << ele << " ";
-  }
-  cout << endl;
+  //for(auto ele: sol){
+//	  cout << ele << " ";
+  //}
+  //cout << endl;
 
   return sol;
 }
