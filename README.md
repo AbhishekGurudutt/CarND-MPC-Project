@@ -3,6 +3,46 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## Overview
+This project involves developing code for Model Predictive Control to drive the simulated car around a vehicle track. Waypoints from the track are used to navigate the car. Steps to complete this project are:
+* Fit a line based on the waypoints.
+* Implement Model Predictive Control calculation.
+* Calculate Steering and throttle values based on the MPC calculation.
+
+## Implementation
+
+#### Model
+The model used is a kinematic model which does not consider the tires and road. The model equation are as follows,
+
+```
+x[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
+y[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
+psi[t] = psi[t-1] + v[t-1] / Lf * delta[t-1] * dt
+v[t] = v[t-1] + a[t-1] * dt
+cte[t] = f(x[t-1]) - y[t-1] + v[t-1] * sin(epsi[t-1]) * dt
+epsi[t] = psi[t] - psides[t-1] + v[t-1] * delta[t-1] / Lf * dt
+```
+* Car position is given by 'x, y'
+* Car heading is givne by 'psi'
+* Car velocity is gievn by 'v'
+* Cross track error is given by 'cte'
+* Orientation error is given by 'epsi'
+* Throttle is given by 'a'
+* Steering angle is given by 'delta'
+* Distance between center of car mass to car front is given by 'Lf'
+
+Values of throttle and steering angle are calculated such that the car drives along the track without leaving the outer boundaries and also try to reach the maximum throttle set.
+
+### N and dt
+* N is the number of timesteps the model predicts in ahead.
+* dt is the length of each timestep.
+
+#### Tuning
+Initially I started of with N=10 and dt=0.1. The car did drive pretty smoothly around the track. But, the green line used to not follow the path at the tip. To avoid this I though increasing the value of N would help. The value of N was increased to 15 while keeping the dt value to 0.1, the car did drive smoothly for half the track, but at one of the turning, the car went off the track. The value of N was reduced to 12, and it was observed that the car completed the track with a smooth drive. So the value of N was kept at 12. Now the value of dt was changed to 0.2 and it was observed that the car used to brake often and the drive was no more smooth. So I changed the value to 0.05 and I could observe the car to wobble in the track and was not going straight. Hence the value of N was kept at 12 and the value of dt to 0.1.
+
+### Latency
+The thread in main.cpp runs at an interval of 100ms. If this latency is not considered in the implementation, then the values that the car would get would be for the previous 100ms and the calculated throttle and steering values would be for the previous time and not for current time. This would lead to a wrong behaviour of car. Hence the kinematic model code was tuned to predict 100ms in advance by multiplying 'delay' parameter which was set to 0.1 (100 ms). This can be observed in main.cpp.
+
 ## Dependencies
 
 * cmake >= 3.5
@@ -37,72 +77,3 @@ Self-Driving Car Engineer Nanodegree Program
 2. Make a build directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./mpc`.
-
-## Tips
-
-1. It's recommended to test the MPC on basic examples to see if your implementation behaves as desired. One possible example
-is the vehicle starting offset of a straight line (reference). If the MPC implementation is correct, after some number of timesteps
-(not too many) it should find and track the reference line.
-2. The `lake_track_waypoints.csv` file has the waypoints of the lake track. You could use this to fit polynomials and points and see of how well your model tracks curve. NOTE: This file might be not completely in sync with the simulator so your solution should NOT depend on it.
-3. For visualization this C++ [matplotlib wrapper](https://github.com/lava/matplotlib-cpp) could be helpful.)
-4.  Tips for setting up your environment are available [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-5. **VM Latency:** Some students have reported differences in behavior using VM's ostensibly a result of latency.  Please let us know if issues arise as a result of a VM environment.
-
-## Editor Settings
-
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
-
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
-
-## Code Style
-
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
-
-## Project Instructions and Rubric
-
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
-
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/b1ff3be0-c904-438e-aad3-2b5379f0e0c3/concepts/1a2255a0-e23c-44cf-8d41-39b8a3c8264a)
-for instructions and the project rubric.
-
-## Hints!
-
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
-
-## Call for IDE Profiles Pull Requests
-
-Help your fellow students!
-
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
-
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
-
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
-
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).

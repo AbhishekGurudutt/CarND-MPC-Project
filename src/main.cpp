@@ -74,7 +74,6 @@ Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,
 	return result;
 }
 
-
 int main() {
 	uWS::Hub h;
 
@@ -102,8 +101,8 @@ int main() {
 							double py = j[1]["y"];
 							double psi = j[1]["psi"];
 							double v = j[1]["speed"];
-					        double delta= j[1]["steering_angle"];
-					        double a = j[1]["throttle"];
+							double delta= j[1]["steering_angle"];
+							double a = j[1]["throttle"];
 
 							/*
 							 * TODO: Calculate steering angle and throttle using MPC.
@@ -111,26 +110,26 @@ int main() {
 							 * Both are in between [-1, 1].
 							 *
 							 */
-					        for (int i = 0; i < ptsx.size(); i++) {
+							for (int i = 0; i < ptsx.size(); i++) {
 								double dtx = ptsx[i] - px;
 								double dty = ptsy[i] - py;
 
 								ptsx[i] = dtx * cos(psi) + dty * sin(psi);
 								ptsy[i] = dty * cos(psi) - dtx * sin(psi);
 
-							  }
+							}
 
-					        Eigen::VectorXd ptsxvec = Eigen::VectorXd::Map(ptsx.data(), ptsx.size());
-						  Eigen::VectorXd ptsyvec = Eigen::VectorXd::Map(ptsy.data(), ptsy.size());
+							Eigen::VectorXd ptsxvec = Eigen::VectorXd::Map(ptsx.data(), ptsx.size());
+							Eigen::VectorXd ptsyvec = Eigen::VectorXd::Map(ptsy.data(), ptsy.size());
 
-						  // Fit polynomial to the points - 3rd order.
+							// Fit polynomial to the points - 3rd order.
 							auto coeffs = polyfit(ptsxvec, ptsyvec, 3);
 
-					         // Estimate cross-track error (horizontal works reasonably well unless there's a lot of warpage
-					          double cte = polyeval(coeffs, 0);
-					          // Calculate orientation error
-					          // TODO: check derivation is correct
-					          double epsi = -atan(coeffs[1]);
+							// Estimate cross-track error (horizontal works reasonably well unless there's a lot of warpage
+							double cte = polyeval(coeffs, 0);
+							// Calculate orientation error
+							// TODO: check derivation is correct
+							double epsi = -atan(coeffs[1]);
 
 							double delay = 0.1;
 
@@ -138,7 +137,7 @@ int main() {
 							double x_delay = ( v * delay );
 							double y_delay = 0;
 							double psi_delay = - (v * delta * delay / mpc.Lf );
-							double v_delay = v + (mpc.prev_throttle * delay) ;
+							double v_delay = v + (mpc.prev_throttle * delay);
 							double cte_delay = cte + ( v * CppAD::sin(epsi) * delay );
 							double epsi_delay = epsi + cte_delay;
 
@@ -164,16 +163,15 @@ int main() {
 							msgJson["steering_angle"] = steer_value;
 							msgJson["throttle"] = throttle_value;
 
-
 							vector<double> mpc_x_vals;
-						  vector<double> mpc_y_vals;
-						  for ( int i = 2; i < vars.size(); i++ ) {
-							if ( i % 2 == 0 ) {
-							  mpc_x_vals.push_back( vars[i] );
-							} else {
-							  mpc_y_vals.push_back( vars[i] );
+							vector<double> mpc_y_vals;
+							for ( int i = 2; i < vars.size(); i++ ) {
+								if ( i % 2 == 0 ) {
+									mpc_x_vals.push_back( vars[i] );
+								} else {
+									mpc_y_vals.push_back( vars[i] );
+								}
 							}
-						  }
 							//.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
 							// the points in the simulator are connected by a Green line
 
@@ -184,14 +182,13 @@ int main() {
 							vector<double> next_x_vals;
 							vector<double> next_y_vals;
 
-					          next_x_vals.resize(ptsxvec.size());
-					          next_y_vals.resize(ptsyvec.size());
+							next_x_vals.resize(ptsxvec.size());
+							next_y_vals.resize(ptsyvec.size());
 
-
-					          for (int i = 0; i < ptsxvec.size(); i++) {
-					                      next_x_vals[i] = ptsxvec[i];
-					                      next_y_vals[i] = ptsyvec[i];
-					                    }
+							for (int i = 0; i < ptsxvec.size(); i++) {
+								next_x_vals[i] = ptsxvec[i];
+								next_y_vals[i] = ptsyvec[i];
+							}
 
 							//.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
 							// the points in the simulator are connected by a Yellow line
